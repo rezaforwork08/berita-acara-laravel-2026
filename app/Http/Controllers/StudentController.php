@@ -84,7 +84,7 @@ class StudentController extends Controller
     {
         $request->validate([
             'name'  => 'required|string',
-            'email' => 'required|email|unique:students, email,' . $id,
+            'email' => 'required|email|unique:students,email,' . $id,
             'gender'=> 'nullable',
             'phone' => 'nullable',
             'address'=> 'nullable',

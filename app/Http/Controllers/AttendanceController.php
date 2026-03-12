@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use \App\Models\Attendance;
 use \App\Models\Student;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class AttendanceController extends Controller
 {
@@ -34,47 +35,37 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'date' => 'required|date',
-            'attendances' => 'required|array',
-            'attendances.*.student_id' => 'required|exists:students,id',
-        ], [
-            'attendances.required' => 'Silakan pilih minimal satu siswa untuk diabsen.',
-        ]);
-
         $date = $request->date;
         $attendances = $request->attendances;
-
-        foreach ($attendances as $attendanceData) {
-            // Check if record exists for this date and student
-            $existingAttendance = Attendance::where('student_id', $attendanceData['student_id'])
-                                            ->whereDate('date', $date)
-                                            ->first();
-
-            if ($existingAttendance) {
-                // Update existing record if needed or skip. Here we update.
+        foreach($attendances as $attendance){
+            // jika Datanya ada, kita update
+            $existingAttendance = Attendance::where('student_id', $attendance['student_id'])
+            ->whereDate('date', $date)
+            ->first();
+            if($existingAttendance){
                 $existingAttendance->update([
-                    'check_in' => $attendanceData['check_in'] ?? null,
-                    'check_out' => $attendanceData['check_out'] ?? null,
-                    'status_in' => $attendanceData['status_in'] ?? null,
-                    'status_out' => $attendanceData['status_out'] ?? null,
-                    'note' => $attendanceData['note'] ?? null,
+                    'status_in' => $attendance['status_in'] ?? null,
+                    'check_in' => $attendance['check_in'] ?? null,
+                    'status_out' => $attendance['status_out'] ?? null,
+                    'check_out' => $attendance['check_out'] ?? null,
+                    'note' => $attendance['note'] ?? null,
                 ]);
-            } else {
-                // Create new record
+            }else{
+                // kalo tidak ada insert 
                 Attendance::create([
-                    'student_id' => $attendanceData['student_id'],
+                    'student_id' => $attendance['student_id'],
                     'date' => $date,
-                    'check_in' => $attendanceData['check_in'] ?? null,
-                    'check_out' => $attendanceData['check_out'] ?? null,
-                    'status_in' => $attendanceData['status_in'] ?? null,
-                    'status_out' => $attendanceData['status_out'] ?? null,
-                    'note' => $attendanceData['note'] ?? null,
+                    'status_in' => $attendance['status_in'] ?? null,
+                    'check_in' => $attendance['check_in'] ?? null,
+                    'status_out' => $attendance['status_out'] ?? null,
+                    'check_out' => $attendance['check_out'] ?? null,
+                    'note' => $attendance['note'] ?? null,
                 ]);
             }
+            
         }
-
-        return redirect()->route('attendance.index')->with('success', 'Data absensi berhasil disimpan!');
+        Alert::success('Success', 'Data Attendance has been saved');
+        return redirect()->route('attendance.index');
     }
 
     /**
@@ -90,7 +81,9 @@ class AttendanceController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $attendance = Attendance::with('student')->findOrFail($id);
+        $title = 'Edit Attendance';
+        return view('attendance.edit', compact('attendance', 'title'));
     }
 
     /**
@@ -98,7 +91,24 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'date' => 'required|date',
+            'status_in' => 'nullable|string',
+            'status_out' => 'nullable|string',
+        ]);
+
+        $attendance = Attendance::findOrFail($id);
+        $attendance->update([
+            'date' => $request->date,
+            'status_in' => $request->status_in,
+            'check_in' => $request->check_in,
+            'status_out' => $request->status_out,
+            'check_out' => $request->check_out,
+            'note' => $request->note,
+        ]);
+
+        Alert::success('Success', 'Data Attendance has been updated');
+        return redirect()->route('attendance.index');
     }
 
     /**
