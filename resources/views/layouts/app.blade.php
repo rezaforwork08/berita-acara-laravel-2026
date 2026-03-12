@@ -34,7 +34,7 @@
 </head>
 
 <body>
-
+    @include('sweetalert::alert')
     <!-- ======= Header ======= -->
     @include('layouts.inc.header')
 
@@ -80,7 +80,10 @@
 
     <!-- Template Main JS File -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
-
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 </body>
 
 </html>

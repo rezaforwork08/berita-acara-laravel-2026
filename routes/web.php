@@ -55,6 +55,14 @@ Route::get('/', [\App\Http\Controllers\LoginController::class, 'index']);
 Route::post('action-login', [\App\Http\Controllers\LoginController::class, 'actionLogin'])->name('action-login');
 Route::post('logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
 
+Route::resource('user', App\Http\Controllers\UserController::class);
+Route::resource('role', App\Http\Controllers\RoleController::class);
+Route::resource('student', App\Http\Controllers\StudentController::class);
+
+Route::resource('attendance', App\Http\Controllers\AttendanceController::class);
+
+
+// get, post, put,delete
 Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
 
 // Route::get('/login', function () {
